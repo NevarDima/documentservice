@@ -19,7 +19,7 @@ public class Handler {
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        webMessageService.allMessages(limit);
+        Flux<Message> messageFlux = webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("WebMessageService done!"));
 //        messageFlux.map(m -> m.getId()).subscribe(id -> System.out.print(id+","));
 //        System.out.println("\n--------------\n--------------\n");
 

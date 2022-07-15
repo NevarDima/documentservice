@@ -25,7 +25,7 @@ public class MongoMessageService {
         return messageMono.flatMap(mongoRepository::insert);
     }
 
-//    public Flux<Message> saveAll(Flux<Message> messageFlux){
-//        return messageFlux.map(mongoRepository::saveAll);
-//    }
+    public Flux<Message> saveAll(Flux<Message> messageFlux){
+        return messageFlux.flatMap(mongoRepository::save);
+    }
 }

@@ -17,16 +17,21 @@ public class WebMessageService {
     private MongoMessageService mongoMessageService;
 
     public Flux<Message> allMessages(int limit){
-        long currentTime = System.currentTimeMillis();
+        long currentTimeToGet = System.currentTimeMillis();
         String queryParam = "";
         if (limit>0) queryParam = "?limit="+limit;
-        return webClient.get()
+        Flux<Message> messageFlux = webClient.get()
             .uri("/messages" + queryParam)
             .retrieve()
             .bodyToFlux(Message.class)
-            .timeout(Duration.ofMillis(10000))
-            .doOnComplete(() -> System.out.println("documentservice " + limit + " Yes! " + (System.currentTimeMillis() - currentTime)/1000.0))
-            .doOnError((e) -> System.out.println("documentservice " + limit + "No ;(. " + e.getMessage()));
+            .doOnComplete(() -> System.out.println("documentservice " + limit + " Yes! " + (System.currentTimeMillis() - currentTimeToGet) / 1000.0))
+            .doOnError(e -> System.out.println("documentservice " + limit + "No ;(. " + e.getMessage()));
+        messageFlux.map(m -> m.getId()).doOnEach(System.out::println).subscribe();
+        long currentTimeToSave = System.currentTimeMillis();
+        return messageFlux;
+//        return mongoMessageService.saveAll(messageFlux)
+//            .doOnComplete(() -> System.out.println(limit + " All messages saved! " + (System.currentTimeMillis() - currentTimeToSave)/1000.0))
+//            .doOnError(e -> System.out.println(limit + " All messages can't be saved ().()"+e.getMessage()));
 
     }
 
@@ -35,8 +40,6 @@ public class WebMessageService {
         Mono<Message> messageMono = webClient.get()
             .uri("/messages/" + id)
             .retrieve()
-            /*.onStatus(httpStatus -> HttpStatus.NOT_FOUND.equals(httpStatus),
-                    clientResponse -> Mono.empty())*/
             .bodyToMono(Message.class);
         return mongoMessageService.save(messageMono)
             .doOnSuccess(m -> System.out.println("Yes!"))
