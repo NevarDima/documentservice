@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -19,9 +18,7 @@ public class Handler {
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        Flux<Message> messageFlux = webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("WebMessageService done!"));
-//        messageFlux.map(m -> m.getId()).subscribe(id -> System.out.print(id+","));
-//        System.out.println("\n--------------\n--------------\n");
+        webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("WebMessageService done!"));
 
         return ServerResponse
             .ok()

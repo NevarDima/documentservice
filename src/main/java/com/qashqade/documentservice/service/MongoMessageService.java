@@ -22,10 +22,18 @@ public class MongoMessageService {
     }
 
     public Mono<Message> save (Mono<Message> messageMono){
-        return messageMono.flatMap(mongoRepository::insert);
+        long currentTime = System.currentTimeMillis();
+        return messageMono.flatMap(mongoRepository::insert)
+            .doOnSuccess(m -> System.out.println("id " + m.getId() + " message saved! " + (System.currentTimeMillis() - currentTime)/1000.0))
+            .doOnError(e -> System.out.println("Message can't be saved ().()"+e.getMessage()));
     }
 
     public Flux<Message> saveAll(Flux<Message> messageFlux){
-        return messageFlux.flatMap(mongoRepository::save);
+        long currentTime = System.currentTimeMillis();
+        messageFlux.flatMap(mongoRepository::insert)
+            .doOnComplete(() -> System.out.println("All message saved! " + (System.currentTimeMillis() - currentTime)/1000.0))
+            .doOnError(e -> System.out.println("All messages can't be saved ().()"+e.getMessage()))
+            .subscribe();
+        return messageFlux;
     }
 }

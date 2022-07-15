@@ -7,8 +7,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-
 @Service
 public class WebMessageService {
     @Autowired
@@ -24,19 +22,13 @@ public class WebMessageService {
             .uri("/messages" + queryParam)
             .retrieve()
             .bodyToFlux(Message.class)
-            .doOnComplete(() -> System.out.println("documentservice " + limit + " Yes! " + (System.currentTimeMillis() - currentTimeToGet) / 1000.0))
+            .doOnComplete(() -> System.out.println("documentservice " + limit + " Yes! " + (System.currentTimeMillis() - currentTimeToGet)/1000.0))
             .doOnError(e -> System.out.println("documentservice " + limit + "No ;(. " + e.getMessage()));
-        messageFlux.map(m -> m.getId()).doOnEach(System.out::println).subscribe();
-        long currentTimeToSave = System.currentTimeMillis();
-        return messageFlux;
-//        return mongoMessageService.saveAll(messageFlux)
-//            .doOnComplete(() -> System.out.println(limit + " All messages saved! " + (System.currentTimeMillis() - currentTimeToSave)/1000.0))
-//            .doOnError(e -> System.out.println(limit + " All messages can't be saved ().()"+e.getMessage()));
+        return mongoMessageService.saveAll(messageFlux);
 
     }
 
-    public Mono<Message> getMessageById(Long id)
-    {
+    public Mono<Message> getMessageById(Long id) {
         Mono<Message> messageMono = webClient.get()
             .uri("/messages/" + id)
             .retrieve()
