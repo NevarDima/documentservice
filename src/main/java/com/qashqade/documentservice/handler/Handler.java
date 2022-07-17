@@ -18,12 +18,12 @@ public class Handler {
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("WebMessageService done!"));
+        webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("200 messages were successfully saved to mongo db."));
 
         return ServerResponse
             .ok()
             .contentType(MediaType.APPLICATION_NDJSON)
-            .body(BodyInserters.fromValue(limit +" trxs done"));
+            .body(BodyInserters.fromValue("WebMessageService has got " + limit + " transactions"));
     }
 
     public Mono<ServerResponse> getById(ServerRequest request) {

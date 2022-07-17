@@ -7,32 +7,41 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+
 @Service
 public class MongoMessageService {
 
     @Autowired
     private MongoRepository mongoRepository;
 
-    public Flux<Message> allMessages(){
+    public Flux<Message> allMessages() {
         return mongoRepository.findAll();
     }
 
-    public Mono<Message> getById(Long id){
+    public Mono<Message> getById(Long id) {
         return mongoRepository.findById(id);
     }
 
-    public Mono<Message> save (Mono<Message> messageMono){
+    public Mono<Message> save(Mono<Message> messageMono) {
         long currentTime = System.currentTimeMillis();
-        return messageMono.flatMap(mongoRepository::insert)
-            .doOnSuccess(m -> System.out.println("id " + m.getId() + " message saved! " + (System.currentTimeMillis() - currentTime)/1000.0))
-            .doOnError(e -> System.out.println("Message can't be saved ().()"+e.getMessage()));
+        final Long[] id = new Long[1];
+        return messageMono.flatMap(message -> {
+                id[0] = message.getId();
+                return mongoRepository.insert(message);
+            })
+            .log("MongoMessageService.save", Level.INFO)
+            .doOnSuccess(m -> System.out.println("id " + id[0] + " message saved! " + (System.currentTimeMillis() - currentTime) / 1000.0))
+            .doOnError(e -> System.out.println("Message id " + id[0] + " can't be saved ().()" + e.getMessage()));
     }
 
-    public Flux<Message> saveAll(Flux<Message> messageFlux){
+    public Flux<Message> saveAll(Flux<Message> messageFlux) {
         long currentTime = System.currentTimeMillis();
         messageFlux.flatMap(mongoRepository::insert)
-            .doOnComplete(() -> System.out.println("All message saved! " + (System.currentTimeMillis() - currentTime)/1000.0))
-            .doOnError(e -> System.out.println("All messages can't be saved ().()"+e.getMessage()))
+            .log("MongoMessageService.saveAll", Level.INFO)
+            .doOnComplete(() -> System.out.println("All message saved! " + (System.currentTimeMillis() - currentTime) / 1000.0))
+            .doOnError(e -> System.out.println("All messages can't be saved ().()" + e.getMessage()))
             .subscribe();
         return messageFlux;
     }
