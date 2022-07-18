@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
 import java.util.logging.Level;
 
@@ -24,7 +25,7 @@ public class WebMessageService {
             .uri("/messages" + queryParam)
             .retrieve()
             .bodyToFlux(Message.class)
-            .log("WebMessageService.allMessage", Level.INFO)
+            .log("WebMessageService.allMessage", Level.INFO, SignalType.ON_ERROR)
             .doOnComplete(() -> System.out.printf("%s messages have been got from webflux module in %s seconds\n",limit,
                 (System.currentTimeMillis() - currentTime)/1000.0))
             .doOnError(e -> System.out.printf("%s can't be obtained from webflux module!\nBecause:\n%s",limit,e.getMessage()));
@@ -39,9 +40,10 @@ public class WebMessageService {
             .retrieve()
             .bodyToMono(Message.class);
         return mongoMessageService.save(messageMono)
-            .log("WebMessageService.getMessageById", Level.INFO)
-            .doOnSuccess(m -> System.out.println("documentservice id " + id + "Yes!" + (System.currentTimeMillis() - currentTime)/1000.0))
-            .doOnError(e -> System.out.println("documentservice id " + id + "No! "+ e.getMessage()));
+            .log("WebMessageService.getMessageById", Level.INFO, SignalType.ON_ERROR)
+            .doOnSuccess(m -> System.out.printf("Message id %s has been got from webflux module in %s seconds!\n", id,
+                    ((System.currentTimeMillis() - currentTime)/1000.0)))
+            .doOnError(e -> System.out.printf("Message id %s can't be obtained from webflux module!\nBecause:\n%s", id, e.getMessage()));
     }
 
 }

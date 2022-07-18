@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 @Service
@@ -31,17 +31,17 @@ public class MongoMessageService {
                 id[0] = message.getId();
                 return mongoRepository.insert(message);
             })
-            .log("MongoMessageService.save", Level.INFO)
+            .log("MongoMessageService.save", Level.INFO, SignalType.ON_ERROR)
             .doOnSuccess(m -> System.out.println("id " + id[0] + " message saved! " + (System.currentTimeMillis() - currentTime) / 1000.0))
-            .doOnError(e -> System.out.println("Message id " + id[0] + " can't be saved ().()" + e.getMessage()));
+            .doOnError(e -> System.out.println("Message id " + id[0] + " can't be saved!" + e.getMessage()));
     }
 
     public Flux<Message> saveAll(Flux<Message> messageFlux) {
         long currentTime = System.currentTimeMillis();
         messageFlux.flatMap(mongoRepository::insert)
-            .log("MongoMessageService.saveAll", Level.INFO)
+            .log("MongoMessageService.saveAll", Level.INFO, SignalType.ON_ERROR)
             .doOnComplete(() -> System.out.println("All message saved! " + (System.currentTimeMillis() - currentTime) / 1000.0))
-            .doOnError(e -> System.out.println("All messages can't be saved ().()" + e.getMessage()))
+            .doOnError(e -> System.out.println("All messages can't be saved!" + e.getMessage()))
             .subscribe();
         return messageFlux;
     }
