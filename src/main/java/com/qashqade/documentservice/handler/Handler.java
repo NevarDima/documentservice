@@ -19,7 +19,7 @@ public class Handler {
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        dataFetchService.allTransactions(limit).doOnComplete(() -> System.out.printf("%s transactions were successfully saved to mongo db.", limit));
+        dataFetchService.allTransactions(limit);
 
         return ServerResponse
             .ok()
