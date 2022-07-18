@@ -31,7 +31,7 @@ public class DataFetchService {
             .log("TransactionService.allTransactions", Level.INFO, SignalType.ON_ERROR)
             .doOnComplete(() -> log.debug("{} transactions have been got in {} seconds!", limit,
                 (System.currentTimeMillis() - currentTime) / 1000.0))
-            .doOnError(e -> log.error("{} can't be obtained!", limit, e));
+            .doOnError(e -> log.error("{} can't be obtained from repository module!", limit, e));
         return transactionService.saveAll(transactionFlux);
 
     }
@@ -46,7 +46,7 @@ public class DataFetchService {
             .log("TransactionService.getTransactionById", Level.INFO, SignalType.ON_ERROR)
             .doOnSuccess(m -> log.debug("Transaction id {} has been got in {} seconds!", id,
                 ((System.currentTimeMillis() - currentTime) / 1000.0)))
-            .doOnError(e -> log.error("Transaction id {} can't be obtained!", id, e));
+            .doOnError(e -> log.error("Transaction id {} can't be obtained from repository module!", id, e));
     }
 
 }
