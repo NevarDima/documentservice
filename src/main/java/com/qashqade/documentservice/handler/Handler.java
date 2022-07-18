@@ -18,7 +18,7 @@ public class Handler {
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        webMessageService.allMessages(limit).doOnComplete(() -> System.out.println("200 messages were successfully saved to mongo db."));
+        webMessageService.allMessages(limit).doOnComplete(() -> System.out.printf("%s messages were successfully saved to mongo db.", limit));
 
         return ServerResponse
             .ok()
