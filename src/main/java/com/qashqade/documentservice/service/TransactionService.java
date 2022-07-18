@@ -4,6 +4,7 @@ import com.qashqade.documentservice.model.Transaction;
 import com.qashqade.documentservice.repository.MongoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,8 +19,13 @@ public class TransactionService {
     @Autowired
     private MongoRepository mongoRepository;
 
-    public Flux<Transaction> allTransactions() {
-        return mongoRepository.findAll();
+    public Flux<Transaction> allTransactions(PageRequest pageRequest) {
+        long currentTime = System.currentTimeMillis();
+        return mongoRepository.findAllLimitBy(pageRequest)
+            .log("TransactionService.allTransactions", Level.INFO, SignalType.ON_ERROR)
+            .doOnComplete(() -> log.debug("{} transactions have been got from mongo db in {} seconds", pageRequest.getPageSize(),
+                (System.currentTimeMillis() - currentTime) / 1000.0))
+            .doOnError(e -> log.error("{} can't be obtained from mongo db!", pageRequest.getPageSize(), e));
     }
 
     public Mono<Transaction> getById(Long id) {

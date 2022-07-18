@@ -16,7 +16,8 @@ public class Router {
     public RouterFunction<ServerResponse> route(Handler transactionHandler) {
         return RouterFunctions
             .route(GET("/transactions"), transactionHandler::list)
-            .andRoute(GET("/transactions/{id}"), transactionHandler::getById);
+            .andRoute(GET("/transactions/{id}"), transactionHandler::getById)
+            .andRoute(GET("/mongotrxs"), transactionHandler::allTransactions);
     }
 
 }
