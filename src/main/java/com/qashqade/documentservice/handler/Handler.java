@@ -1,7 +1,7 @@
 package com.qashqade.documentservice.handler;
 
-import com.qashqade.documentservice.model.Message;
-import com.qashqade.documentservice.service.WebMessageService;
+import com.qashqade.documentservice.model.Transaction;
+import com.qashqade.documentservice.service.DataFetchService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,24 +13,25 @@ import reactor.core.publisher.Mono;
 @Component
 @AllArgsConstructor
 public class Handler {
-    private final WebMessageService webMessageService;
+
+    private final DataFetchService dataFetchService;
 
     public Mono<ServerResponse> list(ServerRequest request) {
         var limit = Integer.parseInt(request.queryParam("limit").orElse("0"));
 
-        webMessageService.allMessages(limit).doOnComplete(() -> System.out.printf("%s messages were successfully saved to mongo db.", limit));
+        dataFetchService.allTransactions(limit).doOnComplete(() -> System.out.printf("%s transactions were successfully saved to mongo db.", limit));
 
         return ServerResponse
             .ok()
             .contentType(MediaType.APPLICATION_NDJSON)
-            .body(BodyInserters.fromValue("WebMessageService has got " + limit + " transactions"));
+            .body(BodyInserters.fromValue("DataFetchService has got " + limit + " transactions"));
     }
 
     public Mono<ServerResponse> getById(ServerRequest request) {
         return ServerResponse
             .ok()
             .contentType(MediaType.APPLICATION_NDJSON)
-            .body(webMessageService.getMessageById(Long.valueOf(request.pathVariable("id"))), Message.class);
+            .body(dataFetchService.getTransactionById(Long.valueOf(request.pathVariable("id"))), Transaction.class);
     }
 
 }

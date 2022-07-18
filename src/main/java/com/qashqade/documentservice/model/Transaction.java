@@ -10,8 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "messages")
-public class Message {
+@Document(collection = "transactions")
+public class Transaction {
+
     @Id
     private Long id;
     @Field(value = "trx")
