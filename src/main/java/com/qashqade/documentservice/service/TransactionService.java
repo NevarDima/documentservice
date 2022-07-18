@@ -34,7 +34,7 @@ public class TransactionService {
                 return mongoRepository.insert(transaction);
             })
             .log("TransactionsService.save", Level.INFO, SignalType.ON_ERROR)
-            .doOnSuccess(m -> log.debug("id {} transaction saved! {}", id[0], (System.currentTimeMillis() - currentTime) / 1000.0))
+            .doOnSuccess(m -> log.debug("id {} transaction saved for {} seconds!", id[0], (System.currentTimeMillis() - currentTime) / 1000.0))
             .doOnError(e -> log.error("Transaction id {} can't be saved!", id[0], e));
     }
 
@@ -42,7 +42,7 @@ public class TransactionService {
         long currentTime = System.currentTimeMillis();
         transactionFlux.flatMap(mongoRepository::insert)
             .log("TransactionsService.saveAll", Level.INFO, SignalType.ON_ERROR)
-            .doOnComplete(() -> log.debug("All transactions saved! {}", (System.currentTimeMillis() - currentTime) / 1000.0))
+            .doOnComplete(() -> log.debug("All transactions saved for {} seconds!", (System.currentTimeMillis() - currentTime) / 1000.0))
             .doOnError(e -> log.error("All transactions can't be saved!", e))
             .subscribe();
         return transactionFlux;

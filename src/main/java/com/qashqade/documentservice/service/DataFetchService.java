@@ -29,9 +29,9 @@ public class DataFetchService {
             .retrieve()
             .bodyToFlux(Transaction.class)
             .log("TransactionService.allTransactions", Level.INFO, SignalType.ON_ERROR)
-            .doOnComplete(() -> log.debug("{} transactions have been got from webflux module in {} seconds", limit,
+            .doOnComplete(() -> log.debug("{} transactions have been got in {} seconds!", limit,
                 (System.currentTimeMillis() - currentTime) / 1000.0))
-            .doOnError(e -> log.error("{} can't be obtained from webflux module!", limit, e));
+            .doOnError(e -> log.error("{} can't be obtained!", limit, e));
         return transactionService.saveAll(transactionFlux);
 
     }
@@ -44,9 +44,9 @@ public class DataFetchService {
             .bodyToMono(Transaction.class);
         return transactionService.save(transactionMono)
             .log("TransactionService.getTransactionById", Level.INFO, SignalType.ON_ERROR)
-            .doOnSuccess(m -> log.debug("Transaction id {} has been got from webflux module in {} seconds!", id,
+            .doOnSuccess(m -> log.debug("Transaction id {} has been got in {} seconds!", id,
                 ((System.currentTimeMillis() - currentTime) / 1000.0)))
-            .doOnError(e -> log.error("Transaction id {} can't be obtained from webflux module!", id, e));
+            .doOnError(e -> log.error("Transaction id {} can't be obtained!", id, e));
     }
 
 }
